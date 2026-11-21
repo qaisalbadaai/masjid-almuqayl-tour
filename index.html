@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="جولة افتراضية بزاوية 360 درجة داخل مسجد المقيل">
+<meta property="og:title" content="مسجد المقيل">
+<meta property="og:description" content="جولة افتراضية بزاوية 360 درجة داخل مسجد المقيل">
+<style>[hidden]{display:none!important}body{margin:0}</style>
+</head>
+<body>
+<title>مسجد المقيل</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500&display=swap">
+<style>
+/* Layout: the mosque fills the screen; one brass arrow on the carpet and a fixed bar carry the visit. */
+:root{
+  color-scheme:dark;
+  --ink:#0b2524;--teal:#123f3d;--brass:#d6ad66;--brass-deep:#a97f3d;--cream:#f6eedf;--mist:#b9c9c4;
+  --display:"Noto Kufi Arabic","Geeza Pro","Segoe UI",Tahoma,sans-serif;
+  --body:"IBM Plex Sans Arabic","Geeza Pro","Segoe UI",Tahoma,sans-serif;
+}
+html,body{height:100%;overflow:hidden;background:var(--ink);color:var(--cream)}
+body{font-family:var(--body);overscroll-behavior:none}
+#app{position:fixed;inset:0;overflow:hidden;background:var(--ink);direction:rtl}
+#view{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab;transition:opacity .28s ease}
+#view.dragging{cursor:grabbing}
+#view.fading{opacity:.08}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+.head{position:absolute;z-index:4;top:calc(env(safe-area-inset-top,0px) + 12px);right:max(16px,env(safe-area-inset-right,0px));left:max(16px,env(safe-area-inset-left,0px));display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none}
+.mark{min-width:0;padding:8px 14px 9px;background:rgba(11,37,36,.78);border-inline-start:3px solid var(--brass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.mark h1{margin:0;font:700 clamp(16px,4.4vw,21px)/1.45 var(--display)}
+.mark p{margin:0;color:var(--mist);font-size:13px;line-height:1.5}
+.list-btn{pointer-events:auto;flex:none;min-height:44px;padding:0 14px;background:rgba(11,37,36,.78);font-weight:500;font-size:14px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+
+#go{position:absolute;z-index:3;left:0;top:0;width:92px;height:92px;margin:-46px 0 0 -46px;display:grid;place-items:center;border-radius:50%;will-change:transform}
+#go svg{width:84px;height:84px;filter:drop-shadow(0 3px 5px rgba(0,0,0,.6));animation:pulse 1.7s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:perspective(170px) rotateX(48deg) translateY(5px);opacity:.88}50%{transform:perspective(170px) rotateX(48deg) translateY(-7px);opacity:1}}
+#turn{position:absolute;z-index:3;top:45%;min-height:48px;padding:0 14px;display:flex;align-items:center;gap:7px;background:var(--brass);color:var(--ink);font-weight:700;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+#turn.right{right:max(10px,env(safe-area-inset-right,0px))}
+#turn.left{left:max(10px,env(safe-area-inset-left,0px))}
+#turn svg{width:18px;height:18px}
+#turn.left svg{transform:scaleX(-1)}
+
+.foot{position:absolute;z-index:5;right:0;left:0;bottom:0;padding-top:10px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 12px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:linear-gradient(to top,rgba(11,37,36,.96) 62%,rgba(11,37,36,0))}
+.bar{max-width:560px;margin:0 auto;display:grid;grid-template-columns:auto 1fr;gap:8px}
+.back{min-height:54px;padding:0 18px;background:rgba(255,255,255,.1);font-weight:500}
+.back:disabled{opacity:.35;cursor:default}
+.next{min-height:54px;padding:0 16px;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--brass);color:var(--ink);font:700 17px/1 var(--display)}
+.next:active{background:var(--brass-deep)}
+.next svg{width:21px;height:21px}
+
+#strip{position:absolute;z-index:6;right:0;left:0;bottom:0;padding-top:12px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 12px);background:var(--ink)}
+.strip-head{display:flex;justify-content:space-between;align-items:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:8px;font:700 15px/1.4 var(--display)}
+.strip-head button{min-width:44px;min-height:44px;font-family:var(--body);font-weight:500;font-size:14px}
+.thumbs{display:flex;gap:8px;overflow-x:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:4px;scrollbar-width:thin}
+.thumb{position:relative;flex:0 0 132px;padding:0;text-align:start;background:var(--teal);border:2px solid transparent}
+.thumb[aria-current="true"]{border-color:var(--brass)}
+.thumb img{display:block;width:100%;height:66px;object-fit:cover}
+.thumb span{display:block;padding:4px 7px 6px;font-size:12px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+#load{position:absolute;z-index:4;top:50%;left:50%;transform:translate(-50%,-50%);padding:9px 16px;background:rgba(11,37,36,.86);font-size:14px;white-space:nowrap}
+#err{position:absolute;z-index:7;inset:0;display:grid;place-items:center;padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));text-align:center;background:var(--ink);line-height:1.8}
+@media (prefers-reduced-motion:reduce){#go svg{animation:none;transform:perspective(170px) rotateX(48deg)}#view{transition:none}}
+</style>
+
+<main id="app">
+  <canvas id="view" aria-label="صورة 360 درجة داخل المسجد. اسحب للنظر حولك."></canvas>
+
+  <header class="head">
+    <div class="mark"><h1>مسجد المقيل</h1><p id="place"></p></div>
+    <button class="list-btn" id="openList" type="button">كل الوجهات</button>
+  </header>
+
+  <button id="go" type="button" aria-label="تقدم إلى الأمام">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 5 58 34H43v9H21v-9H6Z" fill="#d6ad66" stroke="#fff6e4" stroke-width="3" stroke-linejoin="round"/><path d="M21 49h22v5H21zM21 58h22v3H21z" fill="#fff6e4"/></svg>
+  </button>
+  <button id="turn" type="button" hidden><span>السهم هنا</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 4 8 8-8 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <div id="load" role="status" hidden>جارٍ تحميل الوجهة</div>
+
+  <footer class="foot">
+    <div class="bar">
+      <button class="back" id="back" type="button">رجوع</button>
+      <button class="next" id="next" type="button"><span id="nextText">تقدم إلى الأمام</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 4-8 8 8 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+  </footer>
+
+  <section id="strip" aria-label="كل الوجهات" hidden>
+    <div class="strip-head"><span>وجهات الجولة</span><button id="closeList" type="button">إغلاق</button></div>
+    <div class="thumbs" id="thumbs"></div>
+  </section>
+  <div id="err" hidden>هذا المتصفح لا يعرض صور 360. افتح الرابط في Chrome أو Safari بعد تحديثه.</div>
+</main>
+
+<script>
+(() => {
+  const STOPS = [
+    ['المدخل الرئيسي',4.2,-26],['مدخل المصلى',-45.5,-26],['وسط المصلى',-11.2,-22],
+    ['المصلى',93,-22],['المحراب والمنبر',-86.9,-22],['أمام المحراب',95.3,-22],['أرجاء المصلى',86.8,-26],
+    ['أرجاء المصلى',1.8,-26],['أرجاء المصلى',-13.4,-26],['أرجاء المصلى',-97.6,-22],['أرجاء المصلى',-87.1,-24],
+    ['أرجاء المصلى',-88.8,-24],['أرجاء المصلى',-89.8,-24],['أرجاء المصلى',-87.1,-24],['أرجاء المصلى',-87.1,-24],
+    ['أرجاء المصلى',98.1,-23],['أرجاء المصلى',81.5,-30],['أرجاء المصلى',81.5,-30],['أرجاء المصلى',-81.8,-25]
+  ];
+  const $ = id => document.getElementById(id);
+  const canvas = $('view'), go = $('go'), turn = $('turn');
+  const num = n => n.toLocaleString('ar-EG');
+  const FILES = [1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+  const file = (dir, i) => `${dir}/s${String(FILES[i]).padStart(2, '0')}.jpg`;
+  const gl = canvas.getContext('webgl', { antialias: false, alpha: false, preserveDrawingBuffer: true });
+  if (!gl) { $('err').hidden = false; return; }
+
+  const shader = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
+  const prog = gl.createProgram();
+  gl.attachShader(prog, shader(gl.VERTEX_SHADER, `attribute vec3 p;attribute vec2 t;uniform vec2 a;uniform vec2 f;varying vec2 v;void main(){v=t;float x=p.x*cos(a.x)-p.z*sin(a.x),z=p.x*sin(a.x)+p.z*cos(a.x);float y=p.y*cos(a.y)-z*sin(a.y),w=p.y*sin(a.y)+z*cos(a.y);gl_Position=vec4(x*f.x,y*f.y,0.,w);}`));
+  gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, `precision mediump float;varying vec2 v;uniform sampler2D s;void main(){gl_FragColor=texture2D(s,v);}`));
+  gl.linkProgram(prog); gl.useProgram(prog);
+  const uA = gl.getUniformLocation(prog, 'a'), uF = gl.getUniformLocation(prog, 'f');
+
+  const LON = 96, LAT = 48, verts = [], idx = [];
+  for (let j = 0; j <= LAT; j++) for (let i = 0; i <= LON; i++) {
+    const u = i / LON, w = j / LAT, lon = (u - .5) * Math.PI * 2, lat = (.5 - w) * Math.PI;
+    verts.push(Math.cos(lat) * Math.sin(lon), Math.sin(lat), Math.cos(lat) * Math.cos(lon), u, w);
+  }
+  for (let j = 0; j < LAT; j++) for (let i = 0; i < LON; i++) {
+    const a = j * (LON + 1) + i, b = a + LON + 1;
+    idx.push(a, a + 1, b, a + 1, b + 1, b);
+  }
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(idx), gl.STATIC_DRAW);
+  const pA = gl.getAttribLocation(prog, 'p'), tA = gl.getAttribLocation(prog, 't');
+  gl.enableVertexAttribArray(pA); gl.vertexAttribPointer(pA, 3, gl.FLOAT, false, 20, 0);
+  gl.enableVertexAttribArray(tA); gl.vertexAttribPointer(tA, 2, gl.FLOAT, false, 20, 12);
+
+  const aniso = gl.getExtension('EXT_texture_filter_anisotropic');
+  const maxTex = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+  const textures = new Map();
+  const load = i => {
+    if (textures.has(i)) return textures.get(i);
+    const job = new Promise((ok, no) => {
+      const im = new Image();
+      im.onload = () => {
+        let src = im;
+        if (maxTex < im.naturalWidth) { const c = document.createElement('canvas'); c.width = 2048; c.height = 1024; c.getContext('2d').drawImage(im, 0, 0, 2048, 1024); src = c; }
+        const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, src);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        if (aniso) gl.texParameterf(gl.TEXTURE_2D, aniso.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(4, gl.getParameter(aniso.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));
+        ok(tex);
+      };
+      im.onerror = () => { textures.delete(i); no(new Error('image')); };
+      im.src = file('img', i);
+    });
+    textures.set(i, job); return job;
+  };
+  const trim = keep => { for (const [k, job] of textures) if (!keep.includes(k)) { textures.delete(k); job.then(t => gl.deleteTexture(t)).catch(() => {}); } };
+
+  const D = Math.PI / 180;
+  let cur = 0, shown = null, yaw = 0, pitch = -8, zoom = 1, vx = 0, vy = 0, dirty = true, anim = null, token = 0, W = 1, H = 1, fx = 1, fy = 1;
+  const resize = () => {
+    const r = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+    canvas.width = Math.round(W * r); canvas.height = Math.round(H * r); gl.viewport(0, 0, canvas.width, canvas.height);
+    const asp = W / H, baseV = asp < 1 ? Math.min(100, 2 * Math.atan(Math.tan(34 * D) / asp) / D) : 72, v = baseV / zoom;
+    fy = 1 / Math.tan(v * D / 2); fx = fy / asp; dirty = true;
+  };
+  const wrap = a => ((a + 540) % 360 + 360) % 360 - 180;
+  const project = (y, p) => {
+    const a = yaw * D, b = pitch * D, cp = Math.cos(p * D), X = Math.sin(y * D) * cp, Y = Math.sin(p * D), Z = Math.cos(y * D) * cp;
+    const x = X * Math.cos(a) - Z * Math.sin(a), z = X * Math.sin(a) + Z * Math.cos(a), yy = Y * Math.cos(b) - z * Math.sin(b), w = Y * Math.sin(b) + z * Math.cos(b);
+    return w <= .02 ? null : { x: (x * fx / w + 1) * W / 2, y: (1 - yy * fy / w) * H / 2 };
+  };
+  const place = () => {
+    const [, y, p] = STOPS[cur], q = project(y, p), footTop = H - 84;
+    const ok = q && q.x > 34 && q.x < W - 34 && q.y > 70 && q.y < footTop - 26;
+    go.hidden = !ok; turn.hidden = ok || !$('strip').hidden;
+    if (ok) go.style.transform = `translate(${q.x}px,${q.y}px)`;
+    else { const right = wrap(y - yaw) > 0; turn.classList.toggle('right', right); turn.classList.toggle('left', !right); }
+  };
+  const draw = () => {
+    if (anim) { const t = Math.min(1, (performance.now() - anim.t) / anim.ms), e = t * t * (3 - 2 * t); yaw = anim.y + anim.dy * e; pitch = anim.p + anim.dp * e; dirty = true; if (t === 1) anim = null; }
+    else if (Math.abs(vx) > .01 || Math.abs(vy) > .01) { yaw -= vx; pitch = Math.max(-85, Math.min(85, pitch + vy)); vx *= .92; vy *= .92; dirty = true; }
+    if (dirty && shown) { gl.uniform2f(uA, yaw * D, pitch * D); gl.uniform2f(uF, fx, fy); gl.bindTexture(gl.TEXTURE_2D, shown); gl.drawElements(gl.TRIANGLES, idx.length, gl.UNSIGNED_SHORT, 0); place(); dirty = false; }
+    requestAnimationFrame(draw);
+  };
+
+  const face = i => { yaw = STOPS[i][1]; pitch = -8; vx = vy = 0; anim = null; };
+  const show = async i => {
+    i = (i + STOPS.length) % STOPS.length;
+    const my = ++token; cur = i; $('load').hidden = false; canvas.classList.add('fading'); go.hidden = true; turn.hidden = true;
+    $('place').textContent = `${STOPS[i][0]} · ${num(i + 1)} من ${num(STOPS.length)}`;
+    $('back').disabled = i === 0;
+    $('nextText').textContent = i === STOPS.length - 1 ? 'العودة إلى المدخل' : 'تقدم إلى الأمام';
+    document.querySelectorAll('.thumb').forEach((b, k) => b.setAttribute('aria-current', k === i ? 'true' : 'false'));
+    const active = document.querySelectorAll('.thumb')[i]; if (active && !$('strip').hidden) active.scrollIntoView({ inline: 'center', block: 'nearest' });
+    try { history.replaceState(null, '', '#s' + (i + 1)); } catch (e) {}
+    try {
+      const tex = await load(i); if (my !== token) return;
+      shown = tex; face(i); dirty = true; $('load').hidden = true; canvas.classList.remove('fading');
+      const nextI = (i + 1) % STOPS.length, prevI = (i - 1 + STOPS.length) % STOPS.length;
+      trim([i, nextI, prevI]); load(nextI).catch(() => {});
+    } catch (e) { if (my === token) { $('load').textContent = 'تعذر تحميل الصورة. تحقق من الإنترنت ثم اضغط التالي.'; canvas.classList.remove('fading'); } }
+  };
+
+  const pts = new Map(); let pinch = 0, moved = 0;
+  canvas.addEventListener('pointerdown', e => { canvas.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]); vx = vy = 0; anim = null; moved = 0; canvas.classList.add('dragging'); pinch = 0; });
+  canvas.addEventListener('pointermove', e => {
+    const o = pts.get(e.pointerId); if (!o) return;
+    const n = [e.clientX, e.clientY]; pts.set(e.pointerId, n);
+    if (pts.size === 2) { const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (pinch) { zoom = Math.max(.8, Math.min(2.6, zoom * d / pinch)); resize(); } pinch = d; return; }
+    const k = (2 * Math.atan(1 / fy) / D) / H, dx = (n[0] - o[0]) * k, dy = (n[1] - o[1]) * k;
+    yaw -= dx; pitch = Math.max(-85, Math.min(85, pitch + dy)); vx = dx * .75; vy = dy * .75; moved += Math.abs(n[0] - o[0]) + Math.abs(n[1] - o[1]); dirty = true;
+  });
+  const up = e => { pts.delete(e.pointerId); pinch = 0; if (!pts.size) canvas.classList.remove('dragging'); };
+  canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
+  canvas.addEventListener('wheel', e => { e.preventDefault(); zoom = Math.max(.8, Math.min(2.6, zoom * Math.exp(-e.deltaY * .001))); resize(); }, { passive: false });
+  canvas.addEventListener('webglcontextlost', e => e.preventDefault());
+  canvas.addEventListener('webglcontextrestored', () => location.reload());
+
+  go.onclick = () => show(cur + 1);
+  $('next').onclick = () => show(cur + 1);
+  $('back').onclick = () => show(cur - 1);
+  turn.onclick = () => { const [, y] = STOPS[cur]; vx = vy = 0; anim = { t: performance.now(), ms: 520, y: yaw, dy: wrap(y - yaw), p: pitch, dp: -8 - pitch }; };
+  const list = open => { $('strip').hidden = !open; dirty = true; if (open) document.querySelectorAll('.thumb')[cur]?.scrollIntoView({ inline: 'center', block: 'nearest' }); };
+  $('openList').onclick = () => list(true); $('closeList').onclick = () => list(false);
+  addEventListener('keydown', e => {
+    if (e.key === 'ArrowUp' || e.key === 'Enter' && e.target === document.body) show(cur + 1);
+    if (e.key === 'ArrowDown') show(cur - 1);
+    if (e.key === 'ArrowLeft') { yaw -= 8; dirty = true; }
+    if (e.key === 'ArrowRight') { yaw += 8; dirty = true; }
+    if (e.key === 'Escape') list(false);
+  });
+  $('thumbs').innerHTML = STOPS.map((s, i) => `<button class="thumb" type="button" data-i="${i}"><img loading="lazy" src="${file('thumb', i)}" alt=""><span>${num(i + 1)}. ${s[0]}</span></button>`).join('');
+  $('thumbs').onclick = e => { const b = e.target.closest('.thumb'); if (b) { list(false); show(+b.dataset.i); } };
+  addEventListener('resize', resize); resize();
+  const m = /^#s(\d+)$/.exec(location.hash), start = m ? Math.min(STOPS.length, Math.max(1, +m[1])) - 1 : 0;
+  addEventListener('hashchange', () => { const h = /^#s(\d+)$/.exec(location.hash); if (h && +h[1] - 1 !== cur) show(+h[1] - 1); });
+  show(start); requestAnimationFrame(draw);
+})();
+</script>
+
+</body>
+</html>
